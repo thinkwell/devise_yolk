@@ -2,10 +2,10 @@ require 'spec_helper'
 
 module Devise::Strategies
 
-  describe CrowdTokenAuthenticatable do
+  describe YolkTokenAuthenticatable do
 
-    def crowd_username; 'gcostanza@vandelayindustries.com'; end
-    def crowd_token; '1234567890abcdefghijklmno'; end
+    def yolk_username; 'gcostanza@vandelayindustries.com'; end
+    def user_token; '1234567890abcdefghijklmno'; end
 
     before(:each) do
       Devise.add_mapping(:mock_users, :class_name => Devise::Mock::User)
@@ -16,63 +16,63 @@ module Devise::Strategies
     def strategy(uri, cookies={})
       env = Rack::MockRequest.env_for(uri, 'HTTP_COOKIE'=>cookies.to_query)
       env['warden'] = warden_manager
-      CrowdTokenAuthenticatable.new(env, :mock_user)
+      YolkTokenAuthenticatable.new(env, :mock_user)
     end
 
-    context "with a crowd token cookie" do
+    context "with a yolk token cookie" do
       before(:each) do
-        @strategy = strategy("http://example.com/foobar", 'crowd.token_key' => crowd_token)
+        @strategy = strategy("http://example.com/foobar", 'crowd.token_key' => user_token)
       end
 
-      it "is valid for crowd authentication" do
+      it "is valid for yolk authentication" do
         @strategy.should be_valid
       end
 
-      it "authenticates the crowd token" do
-        mock(@mock_crowd_client).is_valid_user_token?(crowd_token) {true}
-        mock(@mock_crowd_client).find_user_by_token(crowd_token) {{:username => crowd_username}}
-        mock(Devise::Mock::User).find_for_authentication({:email => crowd_username}){@model}
+      it "authenticates the yolk token" do
+        mock(@mock_yolk_client).is_valid_user_token?(user_token) {true}
+        mock(@mock_yolk_client).find_user_by_token(user_token) {{:username => yolk_username}}
+        mock(Devise::Mock::User).find_for_authentication({:email => yolk_username}){@model}
         #mock.proxy(@strategy).success!(@model)
         @strategy.authenticate!
         @strategy.result.should == :success
       end
 
-      it "rejects an invalid crowd token" do
-        mock(@mock_crowd_client).is_valid_user_token?(crowd_token) {false}
+      it "rejects an invalid yolk token" do
+        mock(@mock_yolk_client).is_valid_user_token?(user_token) {false}
         @strategy.authenticate!
         @strategy.result.should == :failure
       end
 
-      it "rejects an unknown crowd username" do
-        stub(Devise).crowd_auto_register {false}
-        mock(@mock_crowd_client).is_valid_user_token?(crowd_token) {true}
-        mock(@mock_crowd_client).find_user_by_token(crowd_token) {{:username => 'foobar'}}
+      it "rejects an unknown yolk username" do
+        stub(Devise).yolk_auto_register {false}
+        mock(@mock_yolk_client).is_valid_user_token?(user_token) {true}
+        mock(@mock_yolk_client).find_user_by_token(user_token) {{:username => 'foobar'}}
         mock(Devise::Mock::User).find_for_authentication({:email => 'foobar'}){nil}
         @strategy.authenticate!
         @strategy.result.should == :failure
       end
 
-      it "uses the cached crowd_username" do
-        stub(DeviseYolk).session.with_any_args {{'crowd.last_token' => crowd_token, 'crowd.last_username' => crowd_username}}
-        mock(@mock_crowd_client).is_valid_user_token?(crowd_token) {true}
-        dont_allow(@mock_crowd_client).find_user_by_token(crowd_token)
-        mock(Devise::Mock::User).find_for_authentication({:email => crowd_username}){@model}
+      it "uses the cached yolk_username" do
+        stub(DeviseYolk).session.with_any_args {{'yolk.last_token' => user_token, 'yolk.last_username' => yolk_username}}
+        mock(@mock_yolk_client).is_valid_user_token?(user_token) {true}
+        dont_allow(@mock_yolk_client).find_user_by_token(user_token)
+        mock(Devise::Mock::User).find_for_authentication({:email => yolk_username}){@model}
         @strategy.authenticate!
         @strategy.result.should == :success
       end
     end
 
-    context "with a crowd token param" do
+    context "with a yolk token param" do
       before(:each) do
-        @strategy = strategy("http://example.com/foobar?crowd.token_key=#{crowd_token}")
+        @strategy = strategy("http://example.com/foobar?crowd.token_key=#{user_token}")
       end
 
-      it "is valid for crowd authentication" do
+      it "is valid for yolk authentication" do
         @strategy.should be_valid
       end
     end
 
-    context "with no crowd token" do
+    context "with no yolk token" do
       before(:each) do
         @strategy = strategy("http://example.com/foobar")
       end

@@ -1,7 +1,7 @@
 en:
   devise:
     failure:
-      crowd_unknown_user: 'Unknown Crowd user.'
-      crowd_invalid_token: 'Invalid Crowd token.'
-      crowd_invalid_credentials: 'Invalid Crowd credentials (username or password).'
-      crowd_unverified_request: 'Invalid authenticity token.'
+      yolk_unknown_user: 'Unknown Yolk user.'
+      yolk_invalid_token: 'Invalid Yolk token.'
+      yolk_invalid_credentials: 'Invalid Yolk credentials (username or password).'
+      yolk_unverified_request: 'Invalid authenticity token.'
