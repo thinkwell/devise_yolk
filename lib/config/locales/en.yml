@@ -1,0 +1,7 @@
+en:
+  devise:
+    failure:
+      crowd_unknown_user: 'Unknown Crowd user.'
+      crowd_invalid_token: 'Invalid Crowd token.'
+      crowd_invalid_credentials: 'Invalid Crowd credentials (username or password).'
+      crowd_unverified_request: 'Invalid authenticity token.'
