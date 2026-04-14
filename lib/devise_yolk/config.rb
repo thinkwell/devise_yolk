@@ -16,4 +16,7 @@ module Devise
 
   mattr_accessor :cookie_secure
   @@cookie_secure = nil
+
+  mattr_accessor :yolk_auth_every
+  @@yolk_auth_every = 0
 end
