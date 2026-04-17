@@ -1,7 +1,7 @@
 module Devise
 
   mattr_accessor :yolk_token_key
-  @@yolk_token_key = "crowd.token_key"
+  @@yolk_token_key = "yolk.token_key"
 
   # The name of the yolk username parameter/field.  If nil (default), the
   # first authentication_keys key will be used (e.g. email).

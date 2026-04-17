@@ -22,9 +22,9 @@ In your model class, add the devise_yolk strategies:
 ## Usage
 
 The devise_yolk plugin contains two devise strategies for authentication.
-`yolk_token_authenticatable` authenticates via the crowd.token_key cookie.
+`yolk_token_authenticatable` authenticates via the yolk.token_key cookie.
 `yolk_credentials_authenticatable` authenticates a username/password with
-Yolk and sets the crowd.token_key cookie.  Most applications will use both
+Yolk and sets the yolk.token_key cookie.  Most applications will use both
 strategies.   However, applications without a login form (username/password is
 authenticated and Yolk cookie set in another application) only need the
 `yolk_token_authenticatable` strategy.

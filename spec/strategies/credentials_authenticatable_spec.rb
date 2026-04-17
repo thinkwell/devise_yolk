@@ -38,12 +38,12 @@ module Devise::Strategies
         @strategy.result.should == :success
       end
 
-      it "sets the crowd.token_key cookie" do
+      it "sets the yolk.token_key cookie" do
         mock(@mock_yolk_client).authenticate_user(yolk_username, yolk_password) {user_token}
         mock(Devise::Mock::User).find_for_authentication({:email => yolk_username}){@model}
         @strategy.valid? && @strategy.authenticate!
-        @warden.cookies['crowd.token_key'].should be_a(Hash)
-        @warden.cookies['crowd.token_key'].should include(:value => user_token)
+        @warden.cookies['yolk.token_key'].should be_a(Hash)
+        @warden.cookies['yolk.token_key'].should include(:value => user_token)
       end
 
       it "rejects invalid yolk credentials" do

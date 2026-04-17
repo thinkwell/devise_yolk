@@ -21,7 +21,7 @@ module Devise::Strategies
 
     context "with a yolk token cookie" do
       before(:each) do
-        @strategy = strategy("http://example.com/foobar", 'crowd.token_key' => user_token)
+        @strategy = strategy("http://example.com/foobar", 'yolk.token_key' => user_token)
       end
 
       it "is valid for yolk authentication" do
@@ -64,7 +64,7 @@ module Devise::Strategies
 
     context "with a yolk token param" do
       before(:each) do
-        @strategy = strategy("http://example.com/foobar?crowd.token_key=#{user_token}")
+        @strategy = strategy("http://example.com/foobar?yolk.token_key=#{user_token}")
       end
 
       it "is valid for yolk authentication" do
