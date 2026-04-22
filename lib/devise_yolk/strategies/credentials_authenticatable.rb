@@ -48,7 +48,8 @@ module Devise::Strategies
                  authentication_hash.with_indifferent_access[resource_class.yolk_username_key]
 
       DeviseYolk::Logger.send "DEVISE CREDS AUTH : #{username} : in YOLK ..."
-      user = yolk_record(username)
+      self.yolk_username = username
+      user = yolk_record
 
       token = resource_class.authenticate(user, password)
 
