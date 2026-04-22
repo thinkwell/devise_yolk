@@ -51,8 +51,7 @@ Warden::Manager.before_logout do |record, warden, options|
     DeviseYolk::Logger.send "Removing yolk cookie"
     DeviseYolk.destroy_cookie(
       warden,
-      record ? record.class : Devise.mappings[options[:scope]].to,
-      record ? record.yolk_client : nil
+      record ? record.class : Devise.mappings[options[:scope]].to
     )
   end
 end

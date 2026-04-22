@@ -75,13 +75,14 @@ module Devise::Strategies
         end
 
         unless self.yolk_username
-          if DeviseYolk.yolk_fetch { yolk_client.is_valid_user_token?(yolk_token) }
+          user_token = resource_class.find_token(yolk_token)
+          if user_token&.is_valid?
             DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : is valid in YOLK"
             yolk_session = DeviseYolk.session(warden, scope)
             if yolk_session['yolk.last_token'] == yolk_token && yolk_session['yolk.last_username']
               self.yolk_username = yolk_session['yolk.last_username']
             else
-              self.yolk_record = DeviseYolk.yolk_fetch { yolk_client.find_user_by_token(yolk_token) }
+              self.yolk_record = resource_class.find_by_token(yolk_token)
               if self.yolk_record
                 DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : found user by token in YOLK : #{self.yolk_username}"
                 resource = resource_class.find_by_username(self.yolk_username)
