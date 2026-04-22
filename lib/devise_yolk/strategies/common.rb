@@ -12,8 +12,7 @@ module Devise::Strategies
       @yolk_username = username
     end
 
-    def yolk_record(username: nil)
-      @yolk_username = username if username
+    def yolk_record
       if !@yolk_record && @yolk_username
         Rails.logger.debug "DEVISE YOLK : yolk_record : load_user_by_identifier #{@yolk_username}"
         @yolk_record = resource_class.load_user_by_identifier(@yolk_username)
