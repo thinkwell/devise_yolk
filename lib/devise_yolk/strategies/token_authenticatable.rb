@@ -4,6 +4,7 @@ require 'devise_yolk/strategies/common'
 module Devise::Strategies
   class YolkTokenAuthenticatable < Base
     include YolkCommon
+    attr_accessor :user_token
 
     def valid?
       valid_for_yolk_token_auth?
@@ -11,7 +12,7 @@ module Devise::Strategies
 
     def authenticate!
       authenticate_yolk_token
-      unless yolk_username
+      unless is_authenticated
         DeviseYolk::Logger.send "not authenticated via #{authenticatable_name} (invalid token)!"
         return fail(:yolk_invalid_token)
       end
@@ -64,47 +65,26 @@ module Devise::Strategies
       params[resource_class.yolk_token_key]
     end
 
+    def is_authenticated
+      !!yolk_record && !!yolk_username && !!user_token
+    end
+
     def authenticate_yolk_token
       self.yolk_record = nil
+      self.user_token = nil
       if has_yolk_token?
-        # try to first authenticate against DB token if exists
-        resource = resource_class.find_by_token(yolk_token)
-        if resource
-          resource.upsert_user_token(yolk_token)
-          self.yolk_username = resource.send(resource_class.yolk_username_key)
+        user_token = resource_class.load_user_token_by_token(yolk_token)
+        unless user_token
+          DeviseYolk::Logger.send("DEVISE TOKEN AUTH : #{yolk_token} : NO user token found") and return
         end
 
-        unless self.yolk_username
-          if DeviseYolk.yolk_fetch { yolk_client.is_valid_user_token?(yolk_token) }
-            DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : is valid in YOLK"
-            yolk_session = DeviseYolk.session(warden, scope)
-            if yolk_session['yolk.last_token'] == yolk_token && yolk_session['yolk.last_username']
-              self.yolk_username = yolk_session['yolk.last_username']
-            else
-              self.yolk_record = DeviseYolk.yolk_fetch { yolk_client.find_user_by_token(yolk_token) }
-              if self.yolk_record
-                DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : found user by token in YOLK : #{self.yolk_username}"
-                resource = resource_class.find_by_username(self.yolk_username)
-                # if user does not exist create and update from yolk user
-                unless resource
-                  resource = resource_class.new
-                  resource.update_from_yolk_user self.yolk_record
-                  resource.save!
-                  DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{self.yolk_username} : created user #{resource.id} from YOLK"
-                end
-
-                # if successful update user token in DB
-                DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{self.yolk_username} : update user token in DB"
-                resource.upsert_user_token(yolk_token)
-              else
-                DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : no user found by token in YOLK"
-              end
-            end
-            DeviseYolk::Logger.send("cannot find user for token key") unless self.yolk_username
-          else
-            DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : NOT valid in YOLK"
-          end
+        unless user_token.is_valid?
+          DeviseYolk::Logger.send "DEVISE TOKEN AUTH : #{yolk_token} : NOT valid in YOLK" and return
         end
+
+        self.yolk_record = user_token.user
+        self.yolk_username = yolk_record.send(resource_class.yolk_username_key)
+        self.user_token = user_token
       end
     end
   end

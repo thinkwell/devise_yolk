@@ -55,7 +55,8 @@ module Devise::Strategies
     def cache_authentication
       yolk_session = DeviseYolk.session(warden, scope)
       yolk_session['yolk.last_auth'] = Time.now
-      yolk_session['yolk.last_token'] = user_token
+      token = user_token&.token || user_token
+      yolk_session['yolk.last_token'] = token
       yolk_session['yolk.last_username'] = yolk_username
       DeviseYolk::Logger.send "Cached yolk authorization.  Next authorization at #{Time.now + resource_class.yolk_auth_every}."
     end

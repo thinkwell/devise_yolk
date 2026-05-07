@@ -12,7 +12,7 @@ module Devise::Strategies
 
     def authenticate!
       authenticate_yolk_credentials
-      unless yolk_username
+      unless user_token
         DeviseYolk::Logger.send "not authenticated via #{authenticatable_name} (invalid credentials)!"
         return fail(:yolk_invalid_credentials)
       end
